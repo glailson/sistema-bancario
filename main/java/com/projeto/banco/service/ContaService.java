@@ -72,11 +72,11 @@ public class ContaService {
 
         // 4. Registra no Histórico (Para aparecer no Angular)
         // Criamos um registro para quem envia (DÉBITO)
-        Transacao transacaoOrigem = new Transacao(valor.negate(), Transacao.TipoTransacao.TRANSFERENCIA_ENVIADA, origem, destino.getId());
+        Transacao transacaoOrigem = new Transacao(valor.negate(), Transacao.TipoTransacao.TRANSFERENCIA_ENVIADA, origem, destino);
         origem.getTransacoes().add(transacaoOrigem);
 
         // Criamos um registro para quem recebe (CRÉDITO)
-        Transacao transacaoDestino = new Transacao(valor, Transacao.TipoTransacao.TRANSFERENCIA_RECEBIDA, destino, origem.getId());
+        Transacao transacaoDestino = new Transacao(valor, Transacao.TipoTransacao.TRANSFERENCIA_RECEBIDA, destino, origem);
         destino.getTransacoes().add(transacaoDestino);
 
         // 5. Salva as alterações

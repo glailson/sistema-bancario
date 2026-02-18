@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,17 +29,27 @@ public class Transacao {
     @Column(name = "tipo_transacao")
     private TipoTransacao tipoTransacao;
 
-    @Column(name = "conta_destino_id")
-    private Long contaDestinoId;
+    @ManyToOne
+    @JoinColumn(name = "conta_destino_id")
+    @JsonIgnoreProperties({"transacoes", "saldo"})
+    private Conta contaDestino;
 
     public Transacao() {}
 
-    public Transacao(BigDecimal valor, TipoTransacao tipo, Conta conta, Long contaDestinoId) {
+    public Transacao(BigDecimal valor, TipoTransacao tipo, Conta conta, Conta contaDestino) {
         this.valor = valor;
         this.tipoTransacao = tipo;
         this.conta = conta;
-        this.contaDestinoId = contaDestinoId; // Salva o ID da outra conta envolvida
+        this.contaDestino = contaDestino; // Salva o ID da outra conta envolvida
         this.dataHora = LocalDateTime.now();
+    }
+
+    @Transient // Indica que não é uma coluna no banco, apenas para o JSON
+    public String getNumeroContaFormatado() {
+        if (this.contaDestino != null) {
+            return this.contaDestino.getNumero(); // Retorna o "2005" em vez do "11"
+        }
+        return "N/A";
     }
 
     public enum TipoTransacao {
