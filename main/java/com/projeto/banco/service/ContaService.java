@@ -55,41 +55,33 @@ public class ContaService {
             throw new NegocioException("Não é possível transferir para a mesma conta.");
         }
 
-        // 1. Busca as contas (Lança exceção se não existirem)
         Conta origem = contaRepository.findById(origemId)
                 .orElseThrow(() -> new NegocioException("Conta de origem não encontrada"));
         Conta destino = contaRepository.findByNumero(destinoId.toString())
                 .orElseThrow(() -> new NegocioException("Conta de destino não encontrada"));
 
-        // 2. Valida saldo
         if (origem.getSaldo().compareTo(valor) < 0) {
             throw new NegocioException("Saldo insuficiente para transferência.");
         }
 
-        // 3. Executa a operação financeira
         origem.setSaldo(origem.getSaldo().subtract(valor));
         destino.setSaldo(destino.getSaldo().add(valor));
 
-        // 4. Registra no Histórico (Para aparecer no Angular)
-        // Criamos um registro para quem envia (DÉBITO)
         Transacao transacaoOrigem = new Transacao(valor.negate(), Transacao.TipoTransacao.TRANSFERENCIA_ENVIADA, origem, destino);
         origem.getTransacoes().add(transacaoOrigem);
 
-        // Criamos um registro para quem recebe (CRÉDITO)
         Transacao transacaoDestino = new Transacao(valor, Transacao.TipoTransacao.TRANSFERENCIA_RECEBIDA, destino, origem);
         destino.getTransacoes().add(transacaoDestino);
 
-        // 5. Salva as alterações
         contaRepository.save(origem);
         contaRepository.save(destino);
     }
 
-    // OPERAÇÃO: Emitir Extrato
     public List<Transacao> emitirExtrato(Long contaId) {
         return transacaoRepository.findByContaIdOrderByDataHoraDesc(contaId);
     }
 
-    // Método auxiliar para buscar com Bloqueio Pessimista
+    //Método para buscar com Bloqueio Pessimista
     private Conta buscarComLock(Long id) {
         return contaRepository.findByIdWithLock(id)
                 .orElseThrow(() -> new NegocioException("Conta não encontrada com ID: " + id));

@@ -44,18 +44,17 @@ public class Transacao {
         this.dataHora = LocalDateTime.now();
     }
 
-    @Transient // Indica que não é uma coluna no banco, apenas para o JSON
+    @Transient
     public String getNumeroContaFormatado() {
         if (this.contaDestino != null) {
-            return this.contaDestino.getNumero(); // Retorna o "2005" em vez do "11"
+            return this.contaDestino.getNumero();
         }
         return "N/A";
     }
 
     public enum TipoTransacao {
-
-        TRANSFERENCIA_ENVIADA("Transferência Enviada"),
-        TRANSFERENCIA_RECEBIDA("Transferência Recebida");
+        TRANSFERENCIA_ENVIADA("DÉBITO"),
+        TRANSFERENCIA_RECEBIDA("CRÉDITO");
 
         private String descricao;
 
